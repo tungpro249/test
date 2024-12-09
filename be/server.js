@@ -1,6 +1,7 @@
 const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
+import "./config/connect";
 
 const app = express();
 app.use(morgan("combined"));

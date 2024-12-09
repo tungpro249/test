@@ -1,53 +1,44 @@
-const dataFake = require("./dataFake");
-
-const reader = require("xlsx");
-
+const todoService = require("../sevices/todoSevice");
 const todoController = {
-  list: (req, res) => {
+  list: async (req, res) => {
+    const data = await todoService.list();
     res.json({
       success: "success",
-      data: dataFake,
+      data: data,
     });
   },
   addList: (req, res) => {
     const data = req.body;
-    dataFake.push(data);
+    const updatedData = todoService.add(data);
     res.json({
       success: "success",
-      data: dataFake,
+      data: updatedData,
     });
   },
   updateList: (req, res) => {
     const id = req.params.id;
     const dataUpdate = req.body;
-    dataFake[id] = dataUpdate;
+    const updatedData = todoService.update(id, dataUpdate);
     res.json({
       success: "success",
-      data: dataFake,
+      data: updatedData,
     });
   },
   deleteList: (req, res) => {
     const id = req.params.id;
-    dataFake.splice(id, 1);
+    const updatedData = todoService.delete(id);
     res.json({
       success: "success",
-      data: dataFake,
+      data: updatedData,
     });
   },
 
   addByFile: (req, res) => {
     const filePath = req.file.path;
-    const file = reader.readFile(filePath);
-    const sheets = file.SheetNames;
-    for (let i = 0; i < sheets.length; i++) {
-      const temp = reader.utils.sheet_to_json(file.Sheets[file.SheetNames[i]]);
-      temp.forEach((res) => {
-        dataFake.push(res);
-      });
-    }
+    const updatedData = todoService.addByFile(filePath);
     res.json({
       success: "success",
-      data: dataFake,
+      data: updatedData,
     });
   },
 };

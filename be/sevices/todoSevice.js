@@ -1,36 +1,51 @@
-const dataFake = require("../controllers/dataFake");
 const reader = require("xlsx");
 import todoModel from "../models/todoModel.js";
 
 const todoService = {
+  list: async (page = 1, pageSize = 10) => {
+    const offset = (page - 1) * pageSize;
+    const { count, rows } = await todoModel.findAndCountAll({
+      limit: pageSize,
+      offset: offset,
+    });
 
-  list: async() => {
-    const data = await todoModel.findAll();
-    return data;
+    return {
+      totalItems: count,
+      totalPages: Math.ceil(count / pageSize),
+      currentPage: page,
+      pageSize: pageSize,
+      data: rows,
+    };
   },
 
-  detail: async(id) => {
+  detail: async (id) => {
     const data = await todoModel.findByPk(id);
     return data;
   },
 
   add: async (data) => {
-    return await todoModel.create(data);
+    const result = await todoModel.create(data);
+    return result;
   },
 
   update: async (id, dataUpdate) => {
-    const todoModel = await todoModel.findByPk(id);
-    todoModel.title = dataUpdate.title;
-    todoModel.description = dataUpdate.description;
-    todoModel.completed = dataUpdate.completed;
-    todoModel.save();
-    return todoModel;
+    const result = await todoModel.findByPk(id);
+    result.title = dataUpdate.title;
+    result.description = dataUpdate.description;
+    result.completed = dataUpdate.completed;
+    result.save();
+    return result;
   },
 
   delete: (id) => {
     const item = todoModel.findByPk(id);
     todoModel.destroy({ where: { id: id } });
     return item;
+  },
+
+  deleteMultiple: (ids) => {
+    todoModel.destroy({ where: { id: ids } });
+    return todoModel.findAll();
   },
 
   addByFile: (filePath) => {
